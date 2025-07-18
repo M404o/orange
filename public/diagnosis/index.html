@@ -1001,7 +1001,7 @@
                 console.log('📤 Sending data:', backendRequest);
                 
                 // Send to FastAPI backend (Render-ready URL)
-                const response = await fetch('/api/process-assessment', {
+                const response = await fetch('https://diagnosis-pre.onrender.com/api/process-assessment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
