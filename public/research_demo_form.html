@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Demo - Employee Psychology Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff8c42 50%, #ff6b6b 75%, #ee5a24 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2d3748;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff8c42 50%, #ff6b6b 75%, #ee5a24 100%); }
+            33% { background: linear-gradient(135deg, #f7931e 0%, #ff8c42 25%, #ff6b6b 50%, #ee5a24 75%, #ff6b35 100%); }
+            67% { background: linear-gradient(135deg, #ff8c42 0%, #ff6b6b 25%, #ee5a24 50%, #ff6b35 75%, #f7931e 100%); }
+        }
+
+        .container {
+            max-width: 700px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 28px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 30px 60px rgba(255, 107, 53, 0.15),
+                0 15px 35px rgba(238, 90, 36, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(255, 140, 66, 0.03),
+                transparent,
+                rgba(247, 147, 30, 0.03),
+                transparent
+            );
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(255, 107, 53, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .demo-badge {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(238, 90, 36, 0.9));
+            color: white;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(135deg, #ff6b35, #ee5a24, #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: #5a5a5a;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .description {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.8), 
+                rgba(255, 248, 243, 0.9)
+            );
+            padding: 1.8rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .description h3 {
+            color: #ff6b35;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .description ul {
+            margin-left: 1.5rem;
+            color: #4a5568;
+            line-height: 1.7;
+        }
+
+        .description li {
+            margin-bottom: 0.4rem;
+            position: relative;
+        }
+
+        .description li::marker {
+            color: #ff8c42;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid rgba(255, 140, 66, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 
+                0 0 0 4px rgba(255, 107, 53, 0.1),
+                0 8px 25px rgba(255, 140, 66, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, 
+                rgba(255, 248, 243, 0.8), 
+                rgba(255, 255, 255, 0.9)
+            );
+            border-radius: 12px;
+            border: 1px solid rgba(255, 140, 66, 0.15);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.1);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.8rem;
+            margin-top: 0.25rem;
+            transform: scale(1.3);
+            accent-color: #ff6b35;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            line-height: 1.5;
+            cursor: pointer;
+            color: #2d3748;
+        }
+
+        .required {
+            color: #e53e3e;
+            font-weight: 700;
+        }
+
+        .counter {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.3rem;
+            background: linear-gradient(135deg, 
+                rgba(238, 249, 245, 0.9), 
+                rgba(240, 253, 250, 0.9)
+            );
+            border-radius: 16px;
+            border: 2px solid rgba(52, 211, 153, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .counter-text {
+            color: #065f46;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.4rem;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #f7931e 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 
+                0 10px 30px rgba(255, 107, 53, 0.4),
+                0 4px 15px rgba(238, 90, 36, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent
+            );
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 15px 40px rgba(255, 107, 53, 0.5),
+                0 8px 25px rgba(238, 90, 36, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background: linear-gradient(135deg, #a0aec0, #718096);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .limit-reached, .success-message {
+            text-align: center;
+            padding: 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .limit-reached h2 {
+            color: #e53e3e;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .success-message h2 {
+            color: #38a169;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .limit-reached p, .success-message p {
+            color: #4a5568;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .admin-portal {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .admin-link {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.7), 
+                rgba(0, 0, 0, 0.5)
+            );
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-link:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .participant-id {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 1.5rem;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+                padding: 1.8rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .admin-portal {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="demo-header">
+            <div class="demo-badge">Research Demo</div>
+            <div class="header">
+                <h1>🧠 Employee Psychology Assessment</h1>
+                <p>Advanced AI-driven psychological wellness evaluation</p>
+            </div>
+        </div>
+
+        <div class="description">
+            <h3>🔬 Research Demo Features:</h3>
+            <ul>
+                <li>AI-powered structural analysis of psychological patterns</li>
+                <li>Designed for organizational wellness research</li>
+                <li>Anonymous data processing for team insights</li>
+                <li>Demo limited to 50 research participants</li>
+                <li>Prototype for enterprise evaluation</li>
+            </ul>
+        </div>
+
+        <div class="counter" id="counter">
+            <div class="counter-text">
+                Research Participants: <span id="currentCount">0</span> / 50
+            </div>
+        </div>
+
+        <div id="mainForm">
+            <form id="entryForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name <span class="required">*</span></label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name <span class="required">*</span></label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Work Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company Name <span class="required">*</span></label>
+                        <input type="text" id="company" name="company" placeholder="e.g., Acme Corp, TechStart Inc" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select id="department" name="department">
+                            <option value="">Select Department</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Product">Product</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Customer Success">Customer Success</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Leadership">Leadership</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Job Title</label>
+                        <input type="text" id="role" name="role" placeholder="e.g., Sales Manager, Developer">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="consent" name="consent" required>
+                        <label for="consent">I consent to AI-powered psychological assessment for research purposes and understand this is not medical diagnosis <span class="required">*</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="demoAgreement" name="demoAgreement" required>
+                        <label for="demoAgreement">I understand this is a research demo limited to 50 participants <span class="required">*</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="dataUsage" name="dataUsage" checked>
+                        <label for="dataUsage">I agree to anonymous data usage for organizational research and system improvement</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="futureContact" name="futureContact">
+                        <label for="futureContact">I'm interested in being contacted about the full enterprise version</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="researchInterest">What interests you about this research? (Optional)</label>
+                    <textarea id="researchInterest" name="researchInterest" rows="3" placeholder="e.g., Team wellness insights, psychological assessment innovation, AI applications..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Begin Research Assessment
+                </button>
+            </form>
+        </div>
+
+        <div id="limitReached" style="display: none;">
+            <div class="limit-reached">
+                <h2>🔬 Research Demo Full</h2>
+                <p>Thank you for your interest! Our research demo is currently limited to <strong>50 participants</strong> and has reached capacity.</p>
+                <p>Please contact us for information about the full enterprise version or future research cohorts.</p>
+            </div>
+        </div>
+
+        <div id="successMessage" style="display: none;">
+            <div class="success-message">
+                <h2>✅ Research Registration Complete</h2>
+                <p>Thank you for participating in our research! You'll be redirected to the assessment in 3 seconds...</p>
+                <div class="participant-id" id="participantId"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-portal">
+        <button class="admin-link" onclick="showResearchDashboard()">📊 Research Dashboard</button>
+        <button class="admin-link" onclick="exportResearchData()">📥 Export Data</button>
+        <button class="admin-link" onclick="showParticipantLookup()">🔍 ID Lookup</button>
+    </div>
+
+    <script>
+        // Research data storage
+        let researchLog = JSON.parse(localStorage.getItem('research_participants') || '[]');
+        const LIMIT = 50;
+
+        // Generate research participant ID
+        function generateResearchId() {
+            const timestamp = Date.now().toString(36);
+            const random = Math.random().toString(36).substr(2, 5);
+            return `RD-${timestamp}-${random}`.toUpperCase();
+        }
+
+        // Generate anonymous hash
+        function generateHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(36);
+        }
+
+        // Update participant counter
+        function updateCounter() {
+            const currentCount = researchLog.length;
+            document.getElementById('currentCount').textContent = currentCount;
+            
+            if (currentCount >= LIMIT) {
+                document.getElementById('mainForm').style.display = 'none';
+                document.getElementById('limitReached').style.display = 'block';
+                document.getElementById('counter').style.display = 'none';
+            }
+        }
+
+        // Form submission
+        document.getElementById('entryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (researchLog.length >= LIMIT) {
+                alert('Sorry, the research demo has reached capacity.');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const participantId = generateResearchId();
+            
+            // Create research participant record
+            const participant = {
+                id: participantId,
+                timestamp: new Date().toISOString(),
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                company: formData.get('company'),
+                department: formData.get('department'),
+                role: formData.get('role'),
+                researchInterest: formData.get('researchInterest'),
+                hasDataConsent: formData.get('dataUsage') ? true : false,
+                wantsFutureContact: formData.get('futureContact') ? true : false,
+                hash: generateHash(formData.get('email') + new Date().toISOString())
+            };
+            
+            researchLog.push(participant);
+            localStorage.setItem('research_participants', JSON.stringify(researchLog));
+            
+            // Show success message with participant ID
+            document.getElementById('participantId').textContent = `Research ID: ${participantId}`;
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('counter').style.display = 'none';
+            
+            // Redirect after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'https://d-e-phi.vercel.app/demo';
+            }, 3000);
+        });
+
+        // Admin functions
+        function showResearchDashboard() {
+            const totalParticipants = researchLog.length;
+            const companies = [...new Set(researchLog.map(p => p.company))];
+            const departments = researchLog.reduce((acc, p) => {
+                acc[p.department] = (acc[p.department] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const deptBreakdown = Object.entries(departments)
+                .map(([dept, count]) => `${dept || 'Not specified'}: ${count}`)
+                .join('\n');
+            
+            alert(`🔬 RESEARCH DASHBOARD\n\nTotal Participants: ${totalParticipants} / ${LIMIT}\n\nCompanies: ${companies.length}\n${companies.join(', ')}\n\nDepartment Breakdown:\n${deptBreakdown}\n\nFuture Contact Interest: ${researchLog.filter(p => p.wantsFutureContact).length}\nData Consent: ${researchLog.filter(p => p.hasDataConsent).length}`);
+        }
+
+        function exportResearchData() {
+            if (researchLog.length === 0) {
+                alert('No research participants to export.');
+                return;
+            }
+
+            const csvContent = [
+                'Research ID,Timestamp,First Name,Last Name,Email,Company,Department,Role,Future Contact,Data Consent,Research Interest',
+                ...researchLog.map(p => 
+                    `${p.id},"${p.timestamp}","${p.firstName}","${p.lastName}","${p.email}","${p.company}","${p.department}","${p.role}",${p.wantsFutureContact},${p.hasDataConsent},"${p.researchInterest}"`
+                )
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `research_participants_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showParticipantLookup() {
+            const searchId = prompt('Enter Research Participant ID to lookup:');
+            if (!searchId) return;
+
+            const participant = researchLog.find(p => p.id.toLowerCase() === searchId.toLowerCase());
+            if (participant) {
+                alert(`🔍 RESEARCH PARTICIPANT FOUND\n\nID: ${participant.id}\nName: ${participant.firstName} ${participant.lastName}\nEmail: ${participant.email}\nCompany: ${participant.company}\nDepartment: ${participant.department}\nRole: ${participant.role}\nRegistered: ${participant.timestamp.substring(0, 19).replace('T', ' ')}\nFuture Contact: ${participant.wantsFutureContact ? 'Yes' : 'No'}\nResearch Interest: ${participant.researchInterest || 'Not provided'}`);
+            } else {
+                alert('❌ Research Participant ID not found.');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCounter();
+        });
+
+        // Real-time updates
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'research_participants') {
+                researchLog = JSON.parse(e.newValue || '[]');
+                updateCounter();
+            }
+        });
+    </script>
+</body>
+</html>
