@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Psychology Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff8c42 50%, #ff6b6b 75%, #ee5a24 100%);
+            color: #2d3748;
+            min-height: 100vh;
+            overflow-x: hidden;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ff8c42 50%, #ff6b6b 75%, #ee5a24 100%); }
+            33% { background: linear-gradient(135deg, #f7931e 0%, #ff8c42 25%, #ff6b6b 50%, #ee5a24 75%, #ff6b35 100%); }
+            67% { background: linear-gradient(135deg, #ff8c42 0%, #ff6b6b 25%, #ee5a24 50%, #ff6b35 75%, #f7931e 100%); }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.15);
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b35, #ee5a24, #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: #5a5a5a;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            color: #5a5a5a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+        }
+
+        /* Content sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Add Employee Form */
+        .add-employee-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #ff6b35;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 1rem;
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 248, 243, 0.8);
+            color: #2d3748;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b35;
+            background: rgba(255, 248, 243, 1);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 140, 66, 0.2);
+            border: 2px solid rgba(255, 140, 66, 0.5);
+            color: #ff6b35;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 140, 66, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: rgba(52, 211, 153, 0.2);
+            border: 2px solid rgba(52, 211, 153, 0.5);
+            color: #059669;
+        }
+
+        /* Employee List */
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .employee-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.1);
+        }
+
+        .employee-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .employee-card.status-pending::before {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+
+        .employee-card.status-completed::before {
+            background: linear-gradient(90deg, #34d399, #10b981);
+        }
+
+        .employee-card.status-overdue::before {
+            background: linear-gradient(90deg, #f87171, #ef4444);
+        }
+
+        .employee-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 107, 53, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.2);
+        }
+
+        .employee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .employee-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .employee-dept {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #d69e2e;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-completed {
+            background: rgba(52, 211, 153, 0.2);
+            color: #059669;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .status-overdue {
+            background: rgba(248, 113, 113, 0.2);
+            color: #dc2626;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        .employee-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Image Gallery Section */
+        .image-gallery {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.1);
+        }
+
+        .image-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.generating {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.completed {
+            background: linear-gradient(45deg, #34d399, #10b981);
+        }
+
+        .status-indicator.failed {
+            background: linear-gradient(45deg, #f87171, #ef4444);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .landscape-preview {
+            width: 100%;
+            height: 150px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #fff8f3, #fff1e6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff8c42;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .landscape-preview:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.2);
+        }
+
+        .landscape-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number.primary { color: #ff6b35; }
+        .stat-number.warning { color: #fbbf24; }
+        .stat-number.success { color: #34d399; }
+        .stat-number.danger { color: #f87171; }
+
+        .stat-label {
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Analysis Section */
+        .analysis-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.1);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .chart-container {
+            background: rgba(255, 248, 243, 0.8);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Gallery Section */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.1);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.2);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #fff8f3, #fff1e6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff8c42;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            color: #2d3748;
+            box-shadow: 0 25px 50px rgba(255, 107, 53, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff6b35;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧠 15five Employee Psychology Management</h1>
+            <p>Advanced psychological wellness monitoring with AI-generated emotional landscapes</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showSection('employees')">👥 Employees</button>
+            <button class="nav-tab" onclick="showSection('gallery')">🎨 Heart Landscapes</button>
+            <button class="nav-tab" onclick="showSection('analysis')">📈 Analysis</button>
+            <button class="nav-tab" onclick="showSection('settings')">⚙️ Settings</button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number primary" id="totalEmployees">0</div>
+                    <div class="stat-label">Total Employees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number success" id="completedAssessments">0</div>
+                    <div class="stat-label">Completed Assessments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number warning" id="pendingAssessments">0</div>
+                    <div class="stat-label">Pending Assessments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number danger" id="overdueAssessments">0</div>
+                    <div class="stat-label">Overdue Assessments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number primary" id="generatedImages">0</div>
+                    <div class="stat-label">Generated Landscapes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number warning" id="pendingImages">0</div>
+                    <div class="stat-label">Images Generating</div>
+                </div>
+            </div>
+
+            <div class="analysis-container">
+                <h3 style="margin-bottom: 1rem; color: #ff6b35;">📋 Quick Actions</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="showSection('employees')">
+                        👥 Manage Employees
+                    </button>
+                    <button class="btn btn-secondary" onclick="sendBulkAssessments()">
+                        📧 Send All Assessments
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSection('gallery')">
+                        🎨 View Heart Landscapes
+                    </button>
+                    <button class="btn btn-success" onclick="exportData()">
+                        📊 Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Section -->
+        <div id="employees" class="content-section">
+            <div class="add-employee-form">
+                <h3 style="margin-bottom: 1.5rem; color: #ff6b35;">➕ Add New Employee</h3>
+                <form id="addEmployeeForm" onsubmit="addEmployee(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="employeeName">Full Name *</label>
+                            <input type="text" id="employeeName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeEmail">Email Address *</label>
+                            <input type="email" id="employeeEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeDept">Department *</label>
+                            <select id="employeeDept" required>
+                                <option value="">Select Department</option>
+                                <option value="Management">Management</option>
+                                <option value="Sales">Sales</option>
+                                <option value="HR">HR</option>
+                                <option value="Develoment">Development</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="General Affairs">General Affairs</option>
+                                <option value="Accounting">Accounting</option>
+                                <option value="Support">Support</option>
+                                <option value="Education">Education</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeRole">Job Title</label>
+                            <input type="text" id="employeeRole" placeholder="e.g., Senior Developer">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </form>
+            </div>
+
+            <div class="employee-grid" id="employeeGrid">
+                <!-- Employee cards will be generated here -->
+            </div>
+        </div>
+
+        <!-- Gallery Section -->
+        <div id="gallery" class="content-section">
+            <div class="analysis-container">
+                <h3 style="margin-bottom: 1rem; color: #ff6b35;">🎨 Employee Heart Landscapes Gallery</h3>
+                <p style="color: #718096; margin-bottom: 2rem;">AI-generated emotional landscapes based on psychological assessments</p>
+                
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- Gallery items will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div id="analysis" class="content-section">
+            <div class="analysis-container">
+                <h3 style="margin-bottom: 1rem; color: #ff6b35;">📊 Team Psychology Analysis</h3>
+                <p style="color: #718096; margin-bottom: 2rem;">Complete at least 3 assessments to see detailed analysis</p>
+                
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h4 class="chart-title">Assessment Completion Rate</h4>
+                        <canvas id="completionChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4 class="chart-title">Department Distribution</h4>
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4 class="chart-title">Image Generation Status</h4>
+                        <canvas id="imageStatusChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="generateAnalysisReport()" id="analysisBtn" disabled>
+                        📈 Generate Detailed Analysis Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="content-section">
+            <div class="analysis-container">
+                <h3 style="margin-bottom: 1.5rem; color: #ff6b35;">⚙️ System Settings</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Assessment Reminder Interval</label>
+                        <select>
+                            <option>7 days</option>
+                            <option>14 days</option>
+                            <option>30 days</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Overdue Threshold</label>
+                        <select>
+                            <option>3 days</option>
+                            <option>7 days</option>
+                            <option>14 days</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Image Generation Priority</label>
+                        <select>
+                            <option>High - Generate immediately</option>
+                            <option>Normal - Queue for processing</option>
+                            <option>Low - Manual generation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Midjourney Bot Status</label>
+                        <select>
+                            <option>🟢 Active</option>
+                            <option>🟡 Queue Processing</option>
+                            <option>🔴 Offline</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h4 style="margin: 2rem 0 1rem; color: #ff6b35;">📧 Email Templates</h4>
+                <div class="form-group">
+                    <label>Assessment Invitation Email</label>
+                    <textarea style="padding: 1rem; border-radius: 12px; background: rgba(255,248,243,0.8); color: #2d3748; border: 2px solid rgba(255,107,53,0.2); width: 100%; height: 150px;">Hi {name},
+
+You've been invited to complete a psychological wellness assessment for 15five. This confidential assessment helps our team better support your wellbeing and career development.
+
+Assessment Link: {link}
+
+Your personalized emotional landscape artwork will be generated upon completion!
+
+Please complete within 7 days.
+
+Best regards,
+15five HR Team</textarea>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 1rem;">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Assessment Details -->
+    <div id="assessmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Assessment</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalBody">
+                <!-- Modal content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Image Gallery -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Heart Landscape Details</h3>
+                <span class="close" onclick="closeImageModal()">&times;</span>
+            </div>
+            <div id="imageModalBody">
+                <!-- Image details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Employee data storage
+        let employees = [];
+        let assessmentResults = [];
+        let imageGenerationQueue = [];
+
+        // Initialize with sample data
+        function initializeData() {
+            employees = [
+                {
+                    id: 1,
+                    name: "Alex Johnson",
+                    email: "tanaka@orange.com",
+                    department: "Manager",
+                    role: "Sales Manager",
+                    status: "completed",
+                    assessmentDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+                    invitedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+                    imageStatus: "completed",
+                    imageUrl: "https://via.placeholder.com/400x300/ff8c42/ffffff?text=Sunset+Landscape",
+                    heartLandscape: "A warm orange sunset over calm waters, with gentle waves reflecting the golden light...",
+                    imagePrompt: "peaceful sunset over calm ocean waters, warm orange and golden hues, serene atmosphere"
+                },
+                {
+                    id: 2,
+                    name: "Jamie Patel",
+                    email: "sato@orange.com", 
+                    department: "Develoment",
+                    role: "Senior Developer",
+                    status: "pending",
+                    assessmentDate: null,
+                    invitedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+                    imageStatus: "pending",
+                    imageUrl: null,
+                    heartLandscape: null,
+                    imagePrompt: null
+                },
+                {
+                    id: 3,
+                    name: "Casey Lee",
+                    email: "yamada@orange.com",
+                    department: "HR",
+                    role: "HR Specialist",
+                    status: "overdue",
+                    assessmentDate: null,
+                    invitedDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+                    imageStatus: "pending",
+                    imageUrl: null,
+                    heartLandscape: null,
+                    imagePrompt: null
+                },
+                {
+                    id: 4,
+                    name: "Jordan Taylor",
+                    email: "takahashi@orange.com",
+                    department: "Marketing",
+                    role: "Marketing Lead",
+                    status: "completed",
+                    assessmentDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+                    invitedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+                    imageStatus: "generating",
+                    imageUrl: null,
+                    heartLandscape: "A bustling creative studio filled with vibrant colors and inspiring energy...",
+                    imagePrompt: "vibrant creative workspace, colorful art supplies scattered, inspiring energy, bright lighting"
+                },
+                {
+                    id: 5,
+                    name: "Quinn Rivera",
+                    email: "suzuki@orange.com",
+                    department: "Develoment",
+                    role: "Tech Lead",
+                    status: "completed",
+                    assessmentDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+                    invitedDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+                    imageStatus: "completed",
+                    imageUrl: "https://via.placeholder.com/400x300/4ade80/ffffff?text=Forest+Code",
+                    heartLandscape: "A quiet forest clearing with streams of code flowing like digital rivers through ancient trees...",
+                    imagePrompt: "mystical forest with flowing digital streams, ancient trees, peaceful coding sanctuary"
+                }
+            ];
+
+            updateDashboard();
+            renderEmployees();
+            renderGallery();
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active to clicked tab
+            event.target.classList.add('active');
+
+            // Update charts if analysis section
+            if (sectionId === 'analysis') {
+                updateAnalysisCharts();
+            }
+        }
+
+        // Add Employee
+        function addEmployee(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('employeeName').value;
+            const email = document.getElementById('employeeEmail').value;
+            const department = document.getElementById('employeeDept').value;
+            const role = document.getElementById('employeeRole').value;
+
+            const newEmployee = {
+                id: Date.now(),
+                name,
+                email,
+                department,
+                role,
+                status: 'pending',
+                assessmentDate: null,
+                invitedDate: new Date(),
+                imageStatus: 'pending',
+                imageUrl: null,
+                heartLandscape: null,
+                imagePrompt: null
+            };
+
+            employees.push(newEmployee);
+            
+            // Reset form
+            document.getElementById('addEmployeeForm').reset();
+            
+            // Update display
+            updateDashboard();
+            renderEmployees();
+            renderGallery();
+            
+            // Show success message
+            alert(`Employee ${name} has been added successfully!`);
+        }
+
+        // Render employees
+        function renderEmployees() {
+            const grid = document.getElementById('employeeGrid');
+            grid.innerHTML = '';
+
+            employees.forEach(employee => {
+                const card = createEmployeeCard(employee);
+                grid.appendChild(card);
+            });
+        }
+
+        function createEmployeeCard(employee) {
+            const card = document.createElement('div');
+            card.className = `employee-card status-${employee.status}`;
+
+            const statusText = {
+                pending: 'Pending',
+                completed: 'Completed',
+                overdue: 'Overdue'
+            };
+
+            const imageStatusText = {
+                pending: 'Not Generated',
+                generating: 'Generating...',
+                completed: 'Ready',
+                failed: 'Failed'
+            };
+
+            const daysSinceInvited = Math.floor((new Date() - employee.invitedDate) / (1000 * 60 * 60 * 24));
+            
+            card.innerHTML = `
+                <div class="employee-header">
+                    <div>
+                        <div class="employee-name">${employee.name}</div>
+                        <div class="employee-dept">${employee.department} • ${employee.role}</div>
+                        <div style="font-size: 0.8rem; color: #718096; margin-top: 0.5rem;">
+                            ${employee.email}
+                        </div>
+                    </div>
+                    <div class="status-badge status-${employee.status}">
+                        ${statusText[employee.status]}
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.85rem; color: #5a5a5a; margin-bottom: 1rem;">
+                    ${employee.status === 'completed' 
+                        ? `Completed: ${employee.assessmentDate.toLocaleDateString()}` 
+                        : `Invited: ${daysSinceInvited} days ago`}
+                </div>
+
+                ${employee.status === 'completed' ? `
+                    <div class="image-gallery">
+                        <div class="image-status">
+                            <div class="status-indicator ${employee.imageStatus}"></div>
+                            <span style="font-size: 0.9rem; color: #718096;">
+                                Heart Landscape: ${imageStatusText[employee.imageStatus]}
+                            </span>
+                        </div>
+                        <div class="landscape-preview" onclick="viewLandscape(${employee.id})" ${employee.imageUrl ? `style="background-image: url('${employee.imageUrl}')"` : ''}>
+                            ${!employee.imageUrl ? (employee.imageStatus === 'generating' ? '🎨' : '🖼️') : ''}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="employee-actions">
+                    ${employee.status !== 'completed' 
+                        ? `<button class="btn btn-secondary btn-small" onclick="sendAssessment(${employee.id})">
+                             📧 Send Assessment
+                           </button>
+                           <button class="btn btn-secondary btn-small" onclick="sendReminder(${employee.id})">
+                             🔔 Send Reminder
+                           </button>`
+                        : `<button class="btn btn-success btn-small" onclick="viewResults(${employee.id})">
+                             📊 View Results
+                           </button>
+                           ${employee.imageStatus === 'failed' || employee.imageStatus === 'pending' ? 
+                               `<button class="btn btn-secondary btn-small" onclick="regenerateImage(${employee.id})">
+                                    🎨 Generate Image
+                                </button>` : ''}`}
+                    <button class="btn btn-secondary btn-small" onclick="editEmployee(${employee.id})">
+                        ✏️ Edit
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Render Gallery
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            const completedEmployees = employees.filter(emp => emp.status === 'completed');
+
+            if (completedEmployees.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #718096;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+                        <h3>No Heart Landscapes Yet</h3>
+                        <p>Complete assessments to generate beautiful emotional landscape artwork!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            completedEmployees.forEach(employee => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+
+                const statusBadge = {
+                    generating: '<span style="background: rgba(251, 191, 36, 0.2); color: #d69e2e; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">🎨 Generating</span>',
+                    completed: '<span style="background: rgba(52, 211, 153, 0.2); color: #059669; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">✅ Ready</span>',
+                    failed: '<span style="background: rgba(248, 113, 113, 0.2); color: #dc2626; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">❌ Failed</span>',
+                    pending: '<span style="background: rgba(156, 163, 175, 0.2); color: #6b7280; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">⏳ Pending</span>'
+                };
+
+                item.innerHTML = `
+                    <div class="gallery-image" onclick="viewLandscape(${employee.id})" ${employee.imageUrl ? `style="background-image: url('${employee.imageUrl}')"` : ''}>
+                        ${!employee.imageUrl ? (employee.imageStatus === 'generating' ? '🎨' : employee.imageStatus === 'failed' ? '❌' : '🖼️') : ''}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="font-weight: 600; color: #2d3748;">${employee.name}</h4>
+                        ${statusBadge[employee.imageStatus]}
+                    </div>
+                    <p style="font-size: 0.9rem; color: #718096; margin-bottom: 0.5rem;">${employee.department}</p>
+                    <p style="font-size: 0.85rem; color: #5a5a5a; font-style: italic;">
+                        ${employee.heartLandscape ? employee.heartLandscape.substring(0, 80) + '...' : 'Emotional landscape description pending...'}
+                    </p>
+                    ${employee.imageStatus === 'failed' || employee.imageStatus === 'pending' ? 
+                        `<button class="btn btn-secondary btn-small" style="margin-top: 0.5rem; width: 100%;" onclick="regenerateImage(${employee.id})">
+                            🎨 Generate Landscape
+                        </button>` : ''}
+                `;
+
+                grid.appendChild(item);
+            });
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const total = employees.length;
+            const completed = employees.filter(emp => emp.status === 'completed').length;
+            const pending = employees.filter(emp => emp.status === 'pending').length;
+            const overdue = employees.filter(emp => emp.status === 'overdue').length;
+            const generatedImages = employees.filter(emp => emp.imageStatus === 'completed').length;
+            const pendingImages = employees.filter(emp => emp.imageStatus === 'generating').length;
+
+            document.getElementById('totalEmployees').textContent = total;
+            document.getElementById('completedAssessments').textContent = completed;
+            document.getElementById('pendingAssessments').textContent = pending;
+            document.getElementById('overdueAssessments').textContent = overdue;
+            document.getElementById('generatedImages').textContent = generatedImages;
+            document.getElementById('pendingImages').textContent = pendingImages;
+
+            // Enable analysis button if enough data
+            const analysisBtn = document.getElementById('analysisBtn');
+            if (completed >= 3) {
+                analysisBtn.disabled = false;
+                analysisBtn.textContent = '📈 Generate Detailed Analysis Report';
+            } else {
+                analysisBtn.disabled = true;
+                analysisBtn.textContent = `📈 Need ${3 - completed} more assessments for analysis`;
+            }
+        }
+
+        // Image functions
+        function viewLandscape(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            
+            const modalBody = document.getElementById('imageModalBody');
+            modalBody.innerHTML = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h3 style="color: #ff6b35; margin-bottom: 1rem;">${employee.name}'s Heart Landscape</h3>
+                    ${employee.imageUrl ? 
+                        `<img src="${employee.imageUrl}" alt="Heart Landscape" style="width: 100%; max-width: 500px; border-radius: 16px; box-shadow: 0 8px 25px rgba(255, 107, 53, 0.2);">` :
+                        `<div style="width: 100%; height: 300px; background: linear-gradient(45deg, #fff8f3, #fff1e6); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ff8c42;">
+                            ${employee.imageStatus === 'generating' ? '🎨' : employee.imageStatus === 'failed' ? '❌' : '🖼️'}
+                        </div>`
+                    }
+                </div>
+                
+                <div style="background: rgba(255, 248, 243, 0.8); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: #ff6b35; margin-bottom: 0.5rem;">Original Description</h4>
+                    <p style="font-style: italic; line-height: 1.6;">
+                        "${employee.heartLandscape || 'Heart landscape description not available yet.'}"
+                    </p>
+                </div>
+                
+                ${employee.imagePrompt ? `
+                    <div style="background: rgba(255, 248, 243, 0.8); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                        <h4 style="color: #ff6b35; margin-bottom: 0.5rem;">AI Generation Prompt</h4>
+                        <p style="font-size: 0.9rem; color: #718096;">
+                            ${employee.imagePrompt}
+                        </p>
+                    </div>
+                ` : ''}
+                
+                <div style="background: rgba(255, 248, 243, 0.8); padding: 1.5rem; border-radius: 12px;">
+                    <h4 style="color: #ff6b35; margin-bottom: 0.5rem;">Image Status</h4>
+                    <p>
+                        <strong>Status:</strong> 
+                        <span style="color: ${employee.imageStatus === 'completed' ? '#059669' : employee.imageStatus === 'generating' ? '#d69e2e' : '#dc2626'};">
+                            ${employee.imageStatus === 'completed' ? '✅ Generated' : 
+                              employee.imageStatus === 'generating' ? '🎨 Generating...' : 
+                              employee.imageStatus === 'failed' ? '❌ Failed' : '⏳ Pending'}
+                        </span>
+                    </p>
+                    <p><strong>Assessment Date:</strong> ${employee.assessmentDate ? employee.assessmentDate.toLocaleDateString() : 'N/A'}</p>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center;">
+                    ${employee.imageStatus === 'failed' || employee.imageStatus === 'pending' ? 
+                        `<button class="btn btn-primary" onclick="regenerateImage(${employee.id}); closeImageModal();">
+                            🎨 Generate Image
+                        </button>` : ''}
+                    ${employee.imageUrl ? 
+                        `<button class="btn btn-secondary" onclick="downloadImage('${employee.imageUrl}', '${employee.name}')">
+                            📥 Download
+                        </button>` : ''}
+                    <button class="btn btn-secondary" onclick="closeImageModal()">
+                        ✖️ Close
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('imageModal').style.display = 'block';
+        }
+
+        function regenerateImage(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            
+            // Start generation process
+            employee.imageStatus = 'generating';
+            
+            // Update displays
+            updateDashboard();
+            renderEmployees();
+            renderGallery();
+            
+            // Show notification
+            showNotification(`🎨 Generating heart landscape for ${employee.name}...`, 'info');
+            
+            // Simulate image generation (in real implementation, this would call Midjourney API)
+            setTimeout(() => {
+                // Simulate successful generation
+                if (Math.random() > 0.2) { // 80% success rate
+                    employee.imageStatus = 'completed';
+                    // Generate random placeholder image
+                    const colors = ['ff6b35', 'ff8c42', 'f7931e', '34d399', '60a5fa', 'a78bfa'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    employee.imageUrl = `https://via.placeholder.com/400x300/${randomColor}/ffffff?text=${encodeURIComponent(employee.name + ' Landscape')}`;
+                    
+                    showNotification(`✅ Heart landscape generated for ${employee.name}!`, 'success');
+                } else {
+                    employee.imageStatus = 'failed';
+                    showNotification(`❌ Failed to generate landscape for ${employee.name}. Please try again.`, 'error');
+                }
+                
+                updateDashboard();
+                renderEmployees();
+                renderGallery();
+            }, 3000 + Math.random() * 5000); // 3-8 seconds simulation
+        }
+
+        function downloadImage(imageUrl, employeeName) {
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = `${employeeName}_heart_landscape.jpg`;
+            link.click();
+        }
+
+        // Assessment functions
+        function sendAssessment(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            
+            const assessmentUrl = `https://15five.com/assessment/${employee.id}`;
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <p><strong>Employee:</strong> ${employee.name}</p>
+                <p><strong>Email:</strong> ${employee.email}</p>
+                <p><strong>Assessment URL:</strong></p>
+                <div style="background: rgba(255, 248, 243, 0.8); padding: 1rem; border-radius: 8px; margin: 1rem 0; word-break: break-all; color: #2d3748; border: 1px solid rgba(255, 107, 53, 0.2);">
+                    ${assessmentUrl}
+                </div>
+                <div style="background: rgba(255, 248, 243, 0.8); padding: 1rem; border-radius: 8px; margin: 1rem 0; border: 1px solid rgba(255, 107, 53, 0.2);">
+                    <p style="color: #ff6b35; font-weight: 600; margin-bottom: 0.5rem;">🎨 Special Feature:</p>
+                    <p style="color: #2d3748; font-size: 0.9rem;">Upon completion, an AI-generated emotional landscape artwork will be created based on their responses!</p>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="confirmSendAssessment(${employeeId})">
+                        📧 Send Assessment Email
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyAssessmentLink('${assessmentUrl}')">
+                        📋 Copy Link
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('assessmentModal').style.display = 'block';
+        }
+
+        function confirmSendAssessment(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            
+            showNotification(`📧 Assessment email sent to ${employee.email}!`, 'success');
+            closeModal();
+        }
+
+        function copyAssessmentLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('📋 Assessment link copied to clipboard!', 'info');
+            });
+        }
+
+        function sendReminder(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            showNotification(`🔔 Reminder email sent to ${employee.name}!`, 'info');
+        }
+
+        function viewResults(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            showNotification(`📊 Opening detailed psychological assessment results for ${employee.name}.\n\nThis would show:\n• Radar chart analysis\n• Emotional landscape visualization\n• Stress resilience metrics\n• Role fit recommendations`, 'info');
+        }
+
+        function editEmployee(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            
+            const newName = prompt('Employee Name:', employee.name);
+            const newEmail = prompt('Email Address:', employee.email);
+            const newDept = prompt('Department:', employee.department);
+            const newRole = prompt('Job Title:', employee.role);
+            
+            if (newName && newEmail && newDept) {
+                employee.name = newName;
+                employee.email = newEmail;
+                employee.department = newDept;
+                employee.role = newRole || employee.role;
+                
+                renderEmployees();
+                renderGallery();
+                updateDashboard();
+                showNotification('✅ Employee information updated successfully!', 'success');
+            }
+        }
+
+        function sendBulkAssessments() {
+            const pendingEmployees = employees.filter(emp => emp.status === 'pending' || emp.status === 'overdue');
+            
+            if (pendingEmployees.length === 0) {
+                showNotification('ℹ️ No pending assessments to send!', 'info');
+                return;
+            }
+            
+            const confirmed = confirm(`Send assessment emails to ${pendingEmployees.length} employees?`);
+            if (confirmed) {
+                showNotification(`📧 Assessment emails sent to ${pendingEmployees.length} employees!`, 'success');
+            }
+        }
+
+        function exportData() {
+            const csvData = employees.map(emp => ({
+                Name: emp.name,
+                Email: emp.email,
+                Department: emp.department,
+                Role: emp.role,
+                Status: emp.status,
+                'Invited Date': emp.invitedDate.toLocaleDateString(),
+                'Assessment Date': emp.assessmentDate ? emp.assessmentDate.toLocaleDateString() : 'N/A',
+                'Image Status': emp.imageStatus,
+                'Has Landscape': emp.imageUrl ? 'Yes' : 'No'
+            }));
+
+            const csv = [
+                Object.keys(csvData[0]).join(','),
+                ...csvData.map(row => Object.values(row).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '15five_employee_assessment_data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('📊 Data exported successfully!', 'success');
+        }
+
+        function generateAnalysisReport() {
+            const completedCount = employees.filter(emp => emp.status === 'completed').length;
+            
+            if (completedCount < 3) {
+                showNotification(`ℹ️ Need at least 3 completed assessments for analysis. Currently have ${completedCount}.`, 'info');
+                return;
+            }
+            
+            showNotification(`📈 Opening comprehensive team analysis report!\n\nThis would show:\n• Team psychological profiles\n• Stress resilience analysis\n• Department-wise insights\n• Role-fit recommendations\n• Risk alerts\n• Heart landscape pattern analysis\n\nBased on ${completedCount} completed assessments.`, 'info');
+        }
+
+        // Analysis charts
+        function updateAnalysisCharts() {
+            updateCompletionChart();
+            updateDepartmentChart();
+            updateImageStatusChart();
+        }
+
+        function updateCompletionChart() {
+            const ctx = document.getElementById('completionChart').getContext('2d');
+            
+            const completed = employees.filter(emp => emp.status === 'completed').length;
+            const pending = employees.filter(emp => emp.status === 'pending').length;
+            const overdue = employees.filter(emp => emp.status === 'overdue').length;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending', 'Overdue'],
+                    datasets: [{
+                        data: [completed, pending, overdue],
+                        backgroundColor: ['#34d399', '#fbbf24', '#f87171'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#2d3748',
+                                font: { weight: 600 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDepartmentChart() {
+            const ctx = document.getElementById('departmentChart').getContext('2d');
+            
+            const deptCounts = {};
+            employees.forEach(emp => {
+                deptCounts[emp.department] = (deptCounts[emp.department] || 0) + 1;
+            });
+
+            const labels = Object.keys(deptCounts);
+            const data = Object.values(deptCounts);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Employee Count',
+                        data: data,
+                        backgroundColor: [
+                            '#ff6b35', '#ff8c42', '#f7931e', '#34d399', 
+                            '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#2d3748' }
+                        },
+                        x: {
+                            ticks: { color: '#2d3748' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function updateImageStatusChart() {
+            const ctx = document.getElementById('imageStatusChart').getContext('2d');
+            
+            const completed = employees.filter(emp => emp.imageStatus === 'completed').length;
+            const generating = employees.filter(emp => emp.imageStatus === 'generating').length;
+            const pending = employees.filter(emp => emp.imageStatus === 'pending').length;
+            const failed = employees.filter(emp => emp.imageStatus === 'failed').length;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Generated', 'Generating', 'Pending', 'Failed'],
+                    datasets: [{
+                        data: [completed, generating, pending, failed],
+                        backgroundColor: ['#34d399', '#fbbf24', '#94a3b8', '#f87171'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#2d3748',
+                                font: { weight: 600 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modal functions
+        function closeModal() {
+            document.getElementById('assessmentModal').style.display = 'none';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'linear-gradient(135deg, #34d399, #10b981)',
+                error: 'linear-gradient(135deg, #f87171, #ef4444)',
+                info: 'linear-gradient(135deg, #ff6b35, #ff8c42)',
+                warning: 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+            };
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+                max-width: 350px;
+                word-wrap: break-word;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('assessmentModal');
+            const imageModal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (event.target === imageModal) {
+                imageModal.style.display = 'none';
+            }
+        }
+
+        // Auto-update overdue status
+        function updateEmployeeStatuses() {
+            const now = new Date();
+            employees.forEach(employee => {
+                if (employee.status === 'pending') {
+                    const daysSinceInvited = Math.floor((now - employee.invitedDate) / (1000 * 60 * 60 * 24));
+                    if (daysSinceInvited > 7) {
+                        employee.status = 'overdue';
+                    }
+                }
+            });
+            
+            updateDashboard();
+            renderEmployees();
+            renderGallery();
+        }
+
+        // Simulate assessment completion
+        function simulateAssessmentCompletion() {
+            const pendingEmployees = employees.filter(emp => emp.status === 'pending' || emp.status === 'overdue');
+            
+            if (pendingEmployees.length > 0) {
+                const randomEmployee = pendingEmployees[Math.floor(Math.random() * pendingEmployees.length)];
+                randomEmployee.status = 'completed';
+                randomEmployee.assessmentDate = new Date();
+                
+                // Generate random heart landscape description
+                const landscapes = [
+                    "A serene mountain lake reflecting the clear blue sky, surrounded by gentle hills and wildflowers...",
+                    "A bustling marketplace filled with warm golden light and the energy of creative collaboration...",
+                    "A quiet library corner with soft sunlight streaming through tall windows, books creating cozy shadows...",
+                    "A vibrant garden maze with colorful pathways leading to peaceful reading nooks and reflection spots...",
+                    "A minimalist modern workspace with clean lines, natural materials, and inspiring views of the city..."
+                ];
+                
+                const prompts = [
+                    "peaceful mountain lake reflection, clear blue sky, wildflowers, serene atmosphere",
+                    "warm golden marketplace, creative energy, bustling collaboration, warm lighting",
+                    "cozy library corner, soft sunlight, tall windows, peaceful reading atmosphere",
+                    "vibrant garden maze, colorful pathways, peaceful nooks, natural beauty",
+                    "minimalist modern workspace, clean lines, natural materials, inspiring city views"
+                ];
+                
+                const randomIndex = Math.floor(Math.random() * landscapes.length);
+                randomEmployee.heartLandscape = landscapes[randomIndex];
+                randomEmployee.imagePrompt = prompts[randomIndex];
+                randomEmployee.imageStatus = 'pending';
+                
+                updateDashboard();
+                renderEmployees();
+                renderGallery();
+                
+                showNotification(`✅ ${randomEmployee.name} completed their assessment! Heart landscape pending generation.`, 'success');
+            }
+        }
+
+        // Simulate image generation progress
+        function simulateImageGeneration() {
+            const pendingImages = employees.filter(emp => emp.imageStatus === 'pending' && emp.status === 'completed');
+            
+            if (pendingImages.length > 0 && Math.random() > 0.7) { // 30% chance each cycle
+                const randomEmployee = pendingImages[Math.floor(Math.random() * pendingImages.length)];
+                regenerateImage(randomEmployee.id);
+            }
+        }
+
+        // Initialize the system
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeData();
+            setTimeout(() => {
+                updateAnalysisCharts();
+            }, 500);
+            
+            // Update statuses every minute
+            setInterval(updateEmployeeStatuses, 60000);
+            
+            // Simulate random assessment completions for demo (every 45 seconds)
+            setInterval(simulateAssessmentCompletion, 45000);
+            
+            // Simulate image generation checks (every 20 seconds)
+            setInterval(simulateImageGeneration, 20000);
+        });
+
+        // Add CSS for slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
